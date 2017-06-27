@@ -31,6 +31,8 @@ try {
 	serverConfigs = {};
 }
 
+isWebpack = isWebpack && serverConfigs.useWebpackDevServer
+
 if (isWebpack) {
 	var middlewareOptions = {
 		stats: {
