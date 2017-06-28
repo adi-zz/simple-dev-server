@@ -91,6 +91,27 @@ module.exports = serverConfigs.map(function (serverConfig) {
 		devServer.use(webpackDevServer);
 	}
 
+	if (serverConfig.compressFiles) {
+		devServer.use(function (req, res, next) {
+      // current code doesn't work if the requested url has GET params (like domain.com/app.js?latest)
+      var toBeCompressed = serverConfig.compressFiles.find(function(ext){ return req.url.endsWith(ext); })
+      // if file extension is one of serverConfig.compressFiles, we send the [file].gz from hard disk
+      if (toBeCompressed) {
+        var fileNameOnDisc = '' + req.url + '.gz'
+        res.sendFile(fileNameOnDisc, {
+          root:     serverConfig.projectRoot,
+          dotfiles: 'deny',
+          headers: {
+            'Content-Encoding': 'gzip',
+            'Content-Type':     'application/javascript',
+          }
+        })
+      } else {
+        next()
+      }
+    })
+  }
+
 	// use file if exists
 	if (serverConfig.publicPaths) {
 		var paths = Object.keys(serverConfig.publicPaths);
