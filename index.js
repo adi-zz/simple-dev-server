@@ -97,7 +97,14 @@ module.exports = serverConfigs.map(function (serverConfig) {
       var toBeCompressed = serverConfig.compressFiles.find(function(ext){ return req.url.endsWith(ext); })
       // if file extension is one of serverConfig.compressFiles, we send the [file].gz from hard disk
       if (toBeCompressed) {
-        var fileNameOnDisc = '' + req.url + '.gz'
+	var url = req.url
+	if (serverConfig.publicPaths) {
+		var paths = Object.keys(serverConfig.publicPaths);
+		paths.forEach(function (path) {
+			url = url.replace(path + '/', '/' + serverConfig.publicPaths[path] + '/')
+		});
+	}
+        var fileNameOnDisc = '' + url + '.gz'
         res.sendFile(fileNameOnDisc, {
           root:     serverConfig.projectRoot,
           dotfiles: 'deny',
